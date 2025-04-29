@@ -1,12 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import GameScreen from './src/screens/GameScreen';
+import CardView from './src/components/CardView';
+import { PlayerProvider } from './src/contexts/PlayerContext';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PlayerProvider>
+      <GameScreen />
+    </PlayerProvider>
   );
 }
 
