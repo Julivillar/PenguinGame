@@ -23,4 +23,7 @@ export type Card = {
     started: boolean;
     winnerId?: string; // ID del ganador (opcional)
   };
+
+  export type TargetAction = 'CHANGE_DEFENSE' | 'ATTACK';
+
   
