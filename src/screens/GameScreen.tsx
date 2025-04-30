@@ -1,111 +1,168 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Animated, Easing, StyleSheet } from 'react-native';
-
-import { View, Modal, Button, Text, Alert } from 'react-native';
+import {
+    View,
+    Text,
+    Modal,
+    Button,
+    StyleSheet,
+    Alert,
+    Animated,
+    Easing,
+} from 'react-native';
 import GameBoard from '../components/GameBoard';
-import type { Card, Player } from '../types/GameTypes';
 import { drawCard } from '../services/deckApi';
+import type { Player, Card, TargetAction } from '../types/GameTypes';
 import { usePlayer } from '../contexts/PlayerContext';
-import type { TargetAction } from '../types/GameTypes';
 import CardView from '../components/CardView';
-
-
+import { cardValueToNumber } from '../utils/cardUtils';
 
 const GameScreen: React.FC = () => {
-    const { localPlayerId } = usePlayer();
     const deckId = '4ot1z6b3aqgx';
-
-    const [players, setPlayers] = useState<Player[]>([
-        {
-            id: '1',
-            name: 'Jugador 1',
-            health: 22,
-            defense: { code: '5H', value: 5, suit: 'HEARTS' },
-            age: 25,
-            isTurn: true,
-        },
-        {
-            id: '2',
-            name: 'Jugador 2',
-            health: 20,
-            defense: { code: '9S', value: 9, suit: 'SPADES' },
-            age: 22,
-            isTurn: false,
-        },
-        {
-            id: '3',
-            name: 'Jugador 3',
-            health: 19,
-            defense: { code: '3C', value: 3, suit: 'CLUBS' },
-            age: 28,
-            isTurn: false,
-        },
-        {
-            id: '4',
-            name: 'Ju4',
-            health: 19,
-            defense: { code: '3C', value: 3, suit: 'CLUBS' },
-            age: 28,
-            isTurn: false,
-        },
-    ]);
-
+    const { localPlayerId } = usePlayer();
+    const [players, setPlayers] = useState<Player[]>([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectingTargetForAction, setSelectingTargetForAction] = useState<TargetAction | null>(null);
     const [attackCard, setAttackCard] = useState<Card[] | null>(null);
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(20)).current;
 
+    const localPlayer = players.find(p => p.id === localPlayerId);
+    //const isMyTurn = localPlayer?.isTurn;
+    const isMyTurn = true;
+    const mustAttack = isMyTurn && !!localPlayer?.savedCard;
     const currentTurnPlayer = players.find(p => p.isTurn);
 
+    const initPlayers = async (deckId: string) => {
+        const basePlayers = [
+            { id: '1', name: 'Jugador 1', age: 25 },
+            { id: '2', name: 'Jugador 2', age: 22 },
+            { id: '3', name: 'Jugador 3', age: 30 },
+            { id: '4', name: 'Jugador 4', age: 27 },
+        ];
 
-    const localPlayer = players.find(p => p.id === localPlayerId);
-    const isMyTurn = localPlayer?.isTurn;
+        const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${basePlayers.length}`);
+        const data = await response.json();
+        const drawnCards = data.cards;
+
+        const initializedPlayers = basePlayers.map((p, i) => {
+            const rawCard = drawnCards[i];
+            const numericValue = cardValueToNumber(rawCard.value);
+
+            return {
+                ...p,
+                health: Math.floor(Math.random() * (26 - 18 + 1)) + 18,
+                defense: {
+                    code: rawCard.code,
+                    suit: rawCard.suit,
+                    value: numericValue,
+                },
+                savedCard: undefined,
+                isTurn: false,
+            };
+        });
+        console.log("Jugadores inicializados:", initializedPlayers);
+
+        setPlayers(initializedPlayers);
+    };
+
+    const advanceTurn = () => {
+        setPlayers(prevPlayers => {
+          const currentIndex = prevPlayers.findIndex(p => p.isTurn);
+          let nextIndex = currentIndex;
+          const totalPlayers = prevPlayers.length;
+          let attempts = 0;
+      
+          do {
+            nextIndex = (nextIndex + 1) % totalPlayers;
+            attempts++;
+          } while (prevPlayers[nextIndex].health <= 0 && attempts < totalPlayers);
+      
+          return prevPlayers.map((p, i) => ({
+            ...p,
+            isTurn: i === nextIndex,
+          }));
+        });
+      };
+      
 
     const handleDeckPress = () => {
-        if (isMyTurn) setModalVisible(true);
+        if (isMyTurn) {
+            setModalVisible(true);
+        }
     };
 
     const closeModal = () => setModalVisible(false);
 
-    const handleChangeDefense = () => {
+    const handleChangeDefense = async () => {
         setModalVisible(false);
         setSelectingTargetForAction('CHANGE_DEFENSE');
     };
+
     const handleAttack = () => {
         setModalVisible(false);
         setSelectingTargetForAction('ATTACK');
     };
 
+    const handleGuardCard = async () => {
+        setModalVisible(false);
+        try {
+            const [newCard] = await drawCard(deckId);
+            if (!newCard) throw new Error('No se pudo robar carta');
+
+            const numericValue = cardValueToNumber(newCard.value);
+
+            const updatedPlayers = players.map(p =>
+                p.id === localPlayerId
+                    ? {
+                        ...p,
+                        savedCard: {
+                            code: newCard.code,
+                            suit: newCard.suit,
+                            value: numericValue,
+                        },
+                    }
+                    : p
+            );
+
+            setPlayers(updatedPlayers);
+            Alert.alert('Carta guardada', 'Se usará en tu próximo turno.');
+        } catch (error) {
+            Alert.alert('Error', String(error));
+        } finally {
+            setTimeout(() => {
+                advanceTurn();
+            }, 500);
+        }
+    };
+
     const handleSelectPlayerTarget = async (targetId: string) => {
         try {
-            const valueMap: Record<string, number> = {
-                JACK: 11,
-                QUEEN: 12,
-                KING: 13,
-                ACE: 1,
-            };
-
             if (selectingTargetForAction === 'CHANGE_DEFENSE') {
                 const [newCard] = await drawCard(deckId);
                 if (!newCard) throw new Error('No se pudo robar carta');
 
-                const numericValue = valueMap[newCard.value] ?? parseInt(newCard.value);
+                const numericValue = cardValueToNumber(newCard.value);
 
-                const updatedPlayers = players.map(p =>
-                    p.id === targetId
-                        ? {
+                const updatedPlayers = players.map(p => {
+                    if (p.id === targetId) {
+                        return {
                             ...p,
                             defense: {
                                 code: newCard.code,
                                 suit: newCard.suit,
-                                value: numericValue,
+                                value: cardValueToNumber(newCard.value),
                             },
-                        }
-                        : p
-                );
+                        };
+                    }
+                    return p;
+                });
+                console.log("🆕 Defensa para", targetId, newCard.code);
+                console.log("Antes:", players.find(p => p.id === targetId)?.defense);
+                console.log("Después:", updatedPlayers.find(p => p.id === targetId)?.defense);
 
                 setPlayers(updatedPlayers);
+
             }
 
             if (selectingTargetForAction === 'ATTACK') {
@@ -116,14 +173,7 @@ const GameScreen: React.FC = () => {
                 const [newCard] = await drawCard(deckId);
                 if (!newCard) throw new Error('No se pudo robar carta de ataque');
 
-                const valueMap: Record<string, number> = {
-                    JACK: 11,
-                    QUEEN: 12,
-                    KING: 13,
-                    ACE: 1,
-                };
-
-                const newValue = valueMap[newCard.value] ?? parseInt(newCard.value);
+                const newValue = cardValueToNumber(newCard.value);
 
                 let totalAttack = newValue;
                 let hasSaved = false;
@@ -133,16 +183,11 @@ const GameScreen: React.FC = () => {
                     hasSaved = true;
                 }
 
-                setAttackCard(hasSaved ? [attacker.savedCard!, {
-                    code: newCard.code,
-                    suit: newCard.suit,
-                    value: newValue,
-                }] : [{
-                    code: newCard.code,
-                    suit: newCard.suit,
-                    value: newValue,
-                }]);
-
+                setAttackCard(
+                    hasSaved
+                        ? [attacker.savedCard!, { code: newCard.code, suit: newCard.suit, value: newValue }]
+                        : [{ code: newCard.code, suit: newCard.suit, value: newValue }]
+                );
 
                 const defenseValue = target.defense.value;
 
@@ -157,7 +202,7 @@ const GameScreen: React.FC = () => {
                     const [newDefenseCard] = await drawCard(deckId);
                     if (!newDefenseCard) throw new Error('No se pudo robar nueva defensa');
 
-                    const newDefenseValue = valueMap[newDefenseCard.value] ?? parseInt(newDefenseCard.value);
+                    const newDefenseValue = cardValueToNumber(newDefenseCard.value);
 
                     const updatedPlayers = players.map(p => {
                         if (p.id === targetId) {
@@ -174,16 +219,13 @@ const GameScreen: React.FC = () => {
                         if (p.id === localPlayerId) {
                             return {
                                 ...p,
-                                savedCard: undefined, // se elimina la carta guardada tras el ataque
+                                savedCard: undefined,
                             };
                         }
                         return p;
                     });
 
-                    Alert.alert(
-                        '¡Ataque exitoso!',
-                        `Ataque total: ${totalAttack}\nDaño infligido: ${damage}`
-                    );
+                    Alert.alert('¡Ataque exitoso!', `Ataque total: ${totalAttack}\nDaño infligido: ${damage}`);
 
                     setPlayers(updatedPlayers);
                 }
@@ -191,11 +233,7 @@ const GameScreen: React.FC = () => {
                 setTimeout(() => {
                     setAttackCard(null);
                 }, 3000);
-
-                setSelectingTargetForAction(null);
             }
-
-
         } catch (error) {
             Alert.alert('Error', String(error));
         } finally {
@@ -203,61 +241,48 @@ const GameScreen: React.FC = () => {
             setTimeout(() => {
                 advanceTurn();
             }, 500);
-
         }
     };
 
-    const handleGuardCard = async () => {
-        setModalVisible(false);
-        try {
-            const [newCard] = await drawCard(deckId);
-            if (!newCard) throw new Error('No se pudo robar carta');
+    useEffect(() => {
+        if (!players.some(p => p.isTurn) && players.length > 0) {
+            const sorted = [...players].sort((a, b) => {
+                if (a.health !== b.health) return a.health - b.health;
+                if (a.defense.value !== b.defense.value) return a.defense.value - b.defense.value;
+                return b.age - a.age;
+            });
 
-            const valueMap: Record<string, number> = {
-                JACK: 11,
-                QUEEN: 12,
-                KING: 13,
-                ACE: 1,
-            };
+            const firstPlayerId = sorted[0].id;
 
-            const numericValue = valueMap[newCard.value] ?? parseInt(newCard.value);
+            const updated = players.map(p => ({
+                ...p,
+                isTurn: p.id === firstPlayerId,
+            }));
 
-            const updatedPlayers = players.map(p =>
-                p.id === localPlayerId
-                    ? {
-                        ...p,
-                        savedCard: {
-                            code: newCard.code,
-                            suit: newCard.suit,
-                            value: numericValue,
-                        },
-                    }
-                    : p
-            );
-
-            setPlayers(updatedPlayers);
-            Alert.alert('Carta guardada', 'La carta se ha guardado para tu próximo turno.');
-        } catch (error) {
-            Alert.alert('Error', String(error));
+            setPlayers(updated);
         }
-    };
+    }, [players]);
 
-    const advanceTurn = () => {
-        const currentIndex = players.findIndex(p => p.isTurn);
-        const nextIndex = (currentIndex + 1) % players.length;
 
-        const updated = players.map((p, i) => ({
-            ...p,
-            isTurn: i === nextIndex,
-        }));
+    /* useEffect(() => {
+        if (players.length === 0) {
+          initPlayers(deckId);
+        }
+      }, [players, deckId]);
+       */
+    const [initialized, setInitialized] = useState(false);
 
-        setPlayers(updated);
-    };
+    useEffect(() => {
+        if (!initialized) {
+            initPlayers(deckId).then(() => setInitialized(true));
+        }
+    }, [initialized, deckId]);
+
 
     useEffect(() => {
         if (currentTurnPlayer) {
             fadeAnim.setValue(0);
-            slideAnim.setValue(20); // empieza más abajo
+            slideAnim.setValue(20);
 
             Animated.parallel([
                 Animated.timing(fadeAnim, {
@@ -274,7 +299,6 @@ const GameScreen: React.FC = () => {
                 }),
             ]).start();
 
-            // Desvanecer después de 2.5 segundos
             setTimeout(() => {
                 Animated.timing(fadeAnim, {
                     toValue: 0,
@@ -285,31 +309,9 @@ const GameScreen: React.FC = () => {
         }
     }, [currentTurnPlayer]);
 
-    useEffect(() => {
-        if (!players.some(p => p.isTurn)) {
-            const sorted = [...players].sort((a, b) => {
-                if (a.health !== b.health) return a.health - b.health;
-                if (a.defense.value !== b.defense.value) return a.defense.value - b.defense.value;
-                return b.age - a.age;
-            });
-
-            const firstPlayerId = sorted[0].id;
-
-            const updated = players.map(p => ({
-                ...p,
-                isTurn: p.id === firstPlayerId,
-            }));
-
-            setPlayers(updated);
-        }
-    }, []);
-
-
-    const hasSavedCard = !!localPlayer?.savedCard;
-
     return (
         <View style={{ flex: 1 }}>
-            {players.find(p => p.isTurn) && (
+            {currentTurnPlayer && (
                 <Animated.View
                     style={[
                         styles.turnMessageContainer,
@@ -320,19 +322,11 @@ const GameScreen: React.FC = () => {
                     ]}
                 >
                     <Text style={styles.turnMessageText}>
-                        Turno de {currentTurnPlayer?.name}
+                        Turno de {currentTurnPlayer.name}
                     </Text>
                 </Animated.View>
-
-
             )}
 
-            <GameBoard
-                players={players}
-                onDeckPress={handleDeckPress}
-                selectingTargetForAction={selectingTargetForAction}
-                onSelectPlayerTarget={handleSelectPlayerTarget}
-            />
             {attackCard && (
                 <View style={{ alignItems: 'center', marginVertical: 10, flexDirection: 'row' }}>
                     <Text style={{ fontWeight: 'bold', marginRight: 8 }}>Carta de ataque:</Text>
@@ -347,17 +341,21 @@ const GameScreen: React.FC = () => {
                 </View>
             )}
 
-            {/* Modal con acciones */}
+            <GameBoard
+                players={players}
+                onDeckPress={handleDeckPress}
+                selectingTargetForAction={selectingTargetForAction}
+                onSelectPlayerTarget={handleSelectPlayerTarget}
+            />
+
             <Modal visible={isModalVisible} transparent animationType="slide">
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000aa' }}>
                     <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 10 }}>
-                        {hasSavedCard ? (
-                            <>
-                                <Text style={{ marginBottom: 10, fontWeight: 'bold' }}>
-                                    Tienes una carta guardada. Debes atacar.
-                                </Text>
-                                <Button title="Atacar (obligatorio)" onPress={handleAttack} />
-                            </>
+                        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>
+                            {mustAttack ? 'Debes atacar con tu carta guardada' : '¿Qué quieres hacer?'}
+                        </Text>
+                        {mustAttack ? (
+                            <Button title="Atacar (obligatorio)" onPress={handleAttack} />
                         ) : (
                             <>
                                 <Button title="Cambiar Defensa" onPress={handleChangeDefense} />
@@ -366,7 +364,6 @@ const GameScreen: React.FC = () => {
                             </>
                         )}
                         <Button title="Cancelar" color="red" onPress={closeModal} />
-
                     </View>
                 </View>
             </Modal>
@@ -375,6 +372,7 @@ const GameScreen: React.FC = () => {
 };
 
 export default GameScreen;
+
 const styles = StyleSheet.create({
     turnMessageContainer: {
         position: 'absolute',

@@ -49,7 +49,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     }
   }, [selectingTargetForAction]);
 
-  
+
 
   const getBlinkBackground = () => {
     return blinkAnim.interpolate({
@@ -68,9 +68,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     return (
       <View
-        key={player.id}
+        key={`${player.id}-${player.defense.code}`}
         style={[styles.playerContainer, getPositionStyle(position)]}
       >
+
         <Text style={styles.name}>{player.name}</Text>
         <Text style={styles.health}>❤️ {player.health}</Text>
 
@@ -84,15 +85,21 @@ const GameBoard: React.FC<GameBoardProps> = ({
               }}
             >
               <CardView
+                key={`${player.id}-${player.defense.code}`}
                 value={player.defense.value}
                 suit={player.defense.suit}
               />
+
             </Animated.View>
+
           ) : (
             <CardView
+              key={`${player.id}-${player.defense.code}`}
               value={player.defense.value}
               suit={player.defense.suit}
             />
+
+
           )}
           {player.savedCard && (
             <View style={styles.hiddenCard}>
@@ -195,5 +202,5 @@ const styles = StyleSheet.create({
   hiddenCardSymbol: {
     fontSize: 24,
   },
-  
+
 });

@@ -1,25 +1,31 @@
 const BASE_URL = 'https://deckofcardsapi.com/api/deck';
 
 export const drawCard = async (deckId: string, count = 1): Promise<any[]> => {
-  const res = await fetch(`${BASE_URL}/${deckId}/draw/?count=${count}`);
-  const data = await res.json();
 
-  // Si el mazo está vacío, ejecutamos retorno + barajado
-  if (data.remaining === 0) {
-    console.warn('Mazo vacío. Devolviendo cartas y barajando...');
+  const tryDraw = async () => {
+    const res = await fetch(`${BASE_URL}/${deckId}/draw/?count=${count}`);
+    const data = await res.json();
+    return data;
+  };
 
-    // Devolver cartas al mazo
-    await fetch(`${BASE_URL}/${deckId}/return/`, {
-      method: 'POST',
-    });
+  let data = await tryDraw();
+  
+  const cards = data.cards || [];
 
-    // Barajar
+  const notEnoughCards =
+    !data.success || cards.length < count || data.error?.includes('Not enough cards');
+
+  if (notEnoughCards) {
+    console.warn('⚠️ No hay suficientes cartas. Devolviendo y barajando...');
+
+    await fetch(`${BASE_URL}/${deckId}/return/`, { method: 'POST' });
     await fetch(`${BASE_URL}/${deckId}/shuffle/`);
 
-    // Volver a intentar robar carta
-    const retryRes = await fetch(`${BASE_URL}/${deckId}/draw/?count=${count}`);
-    const retryData = await retryRes.json();
-    return retryData.cards;
+    data = await tryDraw(); // intentar de nuevo
+  }
+
+  if (!data.success) {
+    throw new Error(data.error || 'Error al robar carta');
   }
 
   return data.cards;

@@ -24,6 +24,8 @@ const suitColors: Record<Suit, string> = {
 };
 
 const CardView: React.FC<CardViewProps> = ({ value, suit, backgroundColor = '#fff' }) => {
+  console.log('🃏 Render Card:', suit, value);
+
   return (
     <View style={[styles.card, { backgroundColor }]}>
       <Text style={[styles.text, { color: suitColors[suit] }]}>
