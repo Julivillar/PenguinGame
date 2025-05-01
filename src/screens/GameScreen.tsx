@@ -23,22 +23,32 @@ const GameScreen: React.FC = () => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectingTargetForAction, setSelectingTargetForAction] = useState<TargetAction | null>(null);
     const [attackCard, setAttackCard] = useState<Card[] | null>(null);
+    const [winner, setWinner] = useState<Player | null>(null);
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(20)).current;
 
+    const devMode = true; // Cambia a false cuando uses Firebase
+
+
     const localPlayer = players.find(p => p.id === localPlayerId);
     //const isMyTurn = localPlayer?.isTurn;
     const isMyTurn = true;
-    const mustAttack = isMyTurn && !!localPlayer?.savedCard;
+    //const mustAttack = isMyTurn && !!localPlayer?.savedCard;
+
     const currentTurnPlayer = players.find(p => p.isTurn);
+    const mustAttack = devMode
+        ? !!currentTurnPlayer?.savedCard
+        : currentTurnPlayer?.id === localPlayerId && !!currentTurnPlayer?.savedCard;
+
 
     const initPlayers = async (deckId: string) => {
+        if (winner != null) setWinner(null);
         const basePlayers = [
-            { id: '1', name: 'Jugador 1', age: 25 },
-            { id: '2', name: 'Jugador 2', age: 22 },
-            { id: '3', name: 'Jugador 3', age: 30 },
-            { id: '4', name: 'Jugador 4', age: 27 },
+            { id: '1', name: 'J1', age: 25 },
+            { id: '2', name: 'J2', age: 22 },
+            { id: '3', name: 'J3', age: 30 },
+            { id: '4', name: 'J4', age: 27 },
         ];
 
         const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${basePlayers.length}`);
@@ -52,39 +62,40 @@ const GameScreen: React.FC = () => {
             return {
                 ...p,
                 health: Math.floor(Math.random() * (26 - 18 + 1)) + 18,
+                //health: 1,
                 defense: {
                     code: rawCard.code,
                     suit: rawCard.suit,
                     value: numericValue,
                 },
                 savedCard: undefined,
-                isTurn: false,
+                isTurn: i == 0,
             };
         });
-        console.log("Jugadores inicializados:", initializedPlayers);
+        //console.log("Jugadores inicializados:", initializedPlayers);
 
         setPlayers(initializedPlayers);
     };
 
     const advanceTurn = () => {
         setPlayers(prevPlayers => {
-          const currentIndex = prevPlayers.findIndex(p => p.isTurn);
-          let nextIndex = currentIndex;
-          const totalPlayers = prevPlayers.length;
-          let attempts = 0;
-      
-          do {
-            nextIndex = (nextIndex + 1) % totalPlayers;
-            attempts++;
-          } while (prevPlayers[nextIndex].health <= 0 && attempts < totalPlayers);
-      
-          return prevPlayers.map((p, i) => ({
-            ...p,
-            isTurn: i === nextIndex,
-          }));
+            const currentIndex = prevPlayers.findIndex(p => p.isTurn);
+            let nextIndex = currentIndex;
+            const totalPlayers = prevPlayers.length;
+            let attempts = 0;
+
+            do {
+                nextIndex = (nextIndex + 1) % totalPlayers;
+                attempts++;
+            } while (prevPlayers[nextIndex].health <= 0 && attempts < totalPlayers);
+
+            return prevPlayers.map((p, i) => ({
+                ...p,
+                isTurn: i === nextIndex,
+            }));
         });
-      };
-      
+    };
+
 
     const handleDeckPress = () => {
         if (isMyTurn) {
@@ -113,7 +124,8 @@ const GameScreen: React.FC = () => {
             const numericValue = cardValueToNumber(newCard.value);
 
             const updatedPlayers = players.map(p =>
-                p.id === localPlayerId
+                /* p.id === localPlayerId */
+                p.isTurn
                     ? {
                         ...p,
                         savedCard: {
@@ -167,7 +179,9 @@ const GameScreen: React.FC = () => {
 
             if (selectingTargetForAction === 'ATTACK') {
                 const target = players.find(p => p.id === targetId);
-                const attacker = players.find(p => p.id === localPlayerId);
+                /* const attacker = players.find(p => p.id === localPlayerId); */
+                const attacker = players.find(p => p.isTurn);
+
                 if (!target || !attacker) throw new Error('Jugador no encontrado');
 
                 const [newCard] = await drawCard(deckId);
@@ -216,7 +230,13 @@ const GameScreen: React.FC = () => {
                                 },
                             };
                         }
-                        if (p.id === localPlayerId) {
+                        /* if (p.id === localPlayerId) {
+                            return {
+                                ...p,
+                                savedCard: undefined,
+                            };
+                        } */
+                        if (p.isTurn) {
                             return {
                                 ...p,
                                 savedCard: undefined,
@@ -309,6 +329,13 @@ const GameScreen: React.FC = () => {
         }
     }, [currentTurnPlayer]);
 
+    useEffect(() => {
+        const alive = players.filter(p => p.health > 0);
+        if (alive.length === 1) {
+            setWinner(alive[0]);
+        }
+    }, [players]);
+
     return (
         <View style={{ flex: 1 }}>
             {currentTurnPlayer && (
@@ -347,6 +374,12 @@ const GameScreen: React.FC = () => {
                 selectingTargetForAction={selectingTargetForAction}
                 onSelectPlayerTarget={handleSelectPlayerTarget}
             />
+            {winner && (
+                <View style={styles.victoryContainer}>
+                    <Text style={styles.victoryText}>🏆 {winner.name} ha ganado la partida</Text>
+                    <Button title="Reiniciar partida" onPress={() => initPlayers(deckId)} />
+                </View>
+            )}
 
             <Modal visible={isModalVisible} transparent animationType="slide">
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000aa' }}>
@@ -389,5 +422,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'center',
+    }, victoryContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
     },
+    victoryText: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#4caf50',
+        marginBottom: 10,
+    },
+
 });

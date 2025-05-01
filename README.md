@@ -1,5 +1,8 @@
 # PenguinGame
 My project for the end of course
+# Sugerencias para cambiar
+Cambiaría los títulos por "Preparación" y "Cómo jugar" ya que así lo hacen todos los manuales y te ahorras texto. Y quizás cambiar el orden para que el objetivo no sea lo primero, aunque eso ya es a gusto
+Gumio: Siempre se puede pulir un poco más pero lo dicho, cuatro gilipolleces porque está muy bien y no es lo más importante. Ánimo con el trabajo rey hugg
 
 # 🎴 Reglas del Juego: El Pingüino (Español)
 

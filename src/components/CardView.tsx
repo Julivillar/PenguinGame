@@ -23,13 +23,26 @@ const suitColors: Record<Suit, string> = {
   DIAMONDS: '#e53935',
 };
 
+const formatCardValue = (value: string | number): string => {
+  const map: Record<number, string> = {
+    1: 'A',
+    11: 'J',
+    12: 'Q',
+    13: 'K',
+  };
+
+  const numeric = typeof value === 'string' ? parseInt(value) : value;
+  return map[numeric] ?? String(value);
+};
+
+
 const CardView: React.FC<CardViewProps> = ({ value, suit, backgroundColor = '#fff' }) => {
-  console.log('🃏 Render Card:', suit, value);
+  //console.log('🃏 Render Card:', suit, value);
 
   return (
     <View style={[styles.card, { backgroundColor }]}>
       <Text style={[styles.text, { color: suitColors[suit] }]}>
-        {suitSymbols[suit]} {value}
+        {suitSymbols[suit]} {formatCardValue(value)}
       </Text>
     </View>
   );
@@ -39,8 +52,8 @@ export default CardView;
 
 const styles = StyleSheet.create({
   card: {
-    width: 50,
-    height: 70,
+    width: 70,          // antes 50
+    height: 100,        // antes 70
     borderRadius: 6,
     borderWidth: 2,
     borderColor: '#000',
@@ -49,7 +62,8 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   text: {
-    fontSize: 16,
+    fontSize: 18,       // ajusta el tamaño si se ve pequeño
     fontWeight: 'bold',
   },
 });
+

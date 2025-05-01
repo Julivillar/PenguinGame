@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import type { Player, TargetAction } from '../types/GameTypes';
 import CardView from './CardView';
+import { useColorScheme } from 'react-native';
+
 
 
 type GameBoardProps = {
@@ -26,6 +28,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onSelectPlayerTarget,
 }) => {
   const blinkAnim = useRef(new Animated.Value(0)).current;
+  const colorScheme = useColorScheme();
+  const boardBackgroundColor = colorScheme === 'dark' ? '#5f8a8a': '#dcf7f7';
+  const textColor = colorScheme === 'dark' ? '#ffffff' : '#222222';
+
 
   useEffect(() => {
     if (selectingTargetForAction) {
@@ -64,56 +70,65 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   const renderPlayer = (player: Player, position: Position) => {
     const isSelectable = !!selectingTargetForAction;
+    const isEliminated = player.health <= 0;
     const Wrapper = isSelectable ? TouchableOpacity : View;
 
     return (
       <View
-        key={`${player.id}-${player.defense.code}`}
-        style={[styles.playerContainer, getPositionStyle(position)]}
+        key={player.id}
+        style={[
+          styles.playerContainer,
+          getPositionStyle(position),
+          isEliminated && { opacity: 0 },
+        ]}
       >
-
-        <Text style={styles.name}>{player.name}</Text>
-        <Text style={styles.health}>❤️ {player.health}</Text>
-
-        <Wrapper onPress={() => isSelectable && onSelectPlayerTarget(player.id)}>
-          {isSelectable ? (
-            <Animated.View
-              style={{
-                borderRadius: 6,
-                overflow: 'hidden',
-                backgroundColor: getBlinkBackground(),
-              }}
-            >
-              <CardView
-                key={`${player.id}-${player.defense.code}`}
-                value={player.defense.value}
-                suit={player.defense.suit}
-              />
-
-            </Animated.View>
-
-          ) : (
-            <CardView
-              key={`${player.id}-${player.defense.code}`}
-              value={player.defense.value}
-              suit={player.defense.suit}
-            />
+        {!isEliminated && (
+          <>
+            <Text style={[styles.name, { color: textColor }]}>{player.name}</Text>
+            <Text style={[styles.health, { color: textColor }]}>
+              ❤️ {player.health} 🛡️ {player.defense.value}
+            </Text>
 
 
-          )}
-          {player.savedCard && (
-            <View style={styles.hiddenCard}>
-              <Text style={styles.hiddenCardSymbol}>🂠</Text>
-            </View>
-          )}
+            <Wrapper onPress={() => isSelectable && onSelectPlayerTarget(player.id)}>
+              {isSelectable ? (
+                <Animated.View
+                  style={{
+                    borderRadius: 6,
+                    overflow: 'hidden',
+                    backgroundColor: getBlinkBackground(),
+                  }}
+                >
+                  <CardView
+                    key={`${player.id}-${player.defense.code}`}
+                    value={player.defense.value}
+                    suit={player.defense.suit}
+                  />
+                </Animated.View>
+              ) : (
+                <CardView
+                  key={`${player.id}-${player.defense.code}`}
+                  value={player.defense.value}
+                  suit={player.defense.suit}
+                />
+              )}
 
-        </Wrapper>
+              {player.savedCard && (
+                <View style={styles.hiddenCard}>
+                  <Text style={styles.hiddenCardSymbol}>🂠</Text>
+                </View>
+              )}
+            </Wrapper>
+          </>
+        )}
       </View>
     );
   };
 
+
   return (
-    <View style={styles.board}>
+    <View style={[styles.board, { backgroundColor: boardBackgroundColor }]}>
+
       {/* Top */}
       {players[0] && renderPlayer(players[0], 'top')}
 
@@ -202,5 +217,11 @@ const styles = StyleSheet.create({
   hiddenCardSymbol: {
     fontSize: 24,
   },
+  stats: {
+    fontSize: 14,
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+
 
 });
