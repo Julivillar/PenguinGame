@@ -3,15 +3,18 @@ My project for the end of course
 
 # 🎴 Reglas del Juego: El Pingüino (Español)
 
-## ¿Cómo se reparten las cartas y cuántos jugadores participan?
+## ¿Cuál es el objetivo principal del juego?
+- Es un juego por turnos, "todos contra todos"
+- Ser el último jugador que conserve puntos de vida.
 
+## ¿Qué baraja se utiliza, cómo se reparten las cartas, cuántos jugadores participan y cuanto dura una partida?
+- Se utiliza la baraja francesa o "de poker", aunque se puede jugar con la española
 - Cada jugador recibe una carta, que funcionará como su defensa (o escudo/shield).
 - Participan entre 2 y 4 jugadores.
 - Se genera un número aleatorio entre 18 y 26 para cada jugador, representando sus puntos de vida iniciales.
+- Si se está jugando con una baraja física, se sacan 2 cartas. Si la suma no alcanza 18, se descarta la carta más baja y se extrae otra, repitiendo hasta alcanzar al menos 18.
+- La partida dura alrededor de 5 minutos, dependiendo de la suerte y la estrategia de los jugadores
 
-## ¿Cuál es el objetivo principal del juego?
-
-- Ser el último jugador que conserve puntos de vida.
 
 ## Reglas
 
