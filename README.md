@@ -1,30 +1,30 @@
 # PenguinGame
 My project for the end of course
-# Sugerencias para cambiar
-Cambiaría los títulos por "Preparación" y "Cómo jugar" ya que así lo hacen todos los manuales y te ahorras texto. Y quizás cambiar el orden para que el objetivo no sea lo primero, aunque eso ya es a gusto
-Gumio: Siempre se puede pulir un poco más pero lo dicho, cuatro gilipolleces porque está muy bien y no es lo más importante. Ánimo con el trabajo rey hugg
 
 # 🎴 Reglas del Juego: El Pingüino (Español)
 
-## ¿Cuál es el objetivo principal del juego?
-- Es un juego por turnos, "todos contra todos"
-- Ser el último jugador que conserve puntos de vida.
+## Preparación
 
-## ¿Qué baraja se utiliza, cómo se reparten las cartas, cuántos jugadores participan y cuanto dura una partida?
-- Se utiliza la baraja francesa o "de poker", aunque se puede jugar con la española
-- Cada jugador recibe una carta, que funcionará como su defensa (o escudo/shield).
+- Se utiliza la baraja francesa o "de poker", aunque se puede jugar con la española.
 - Participan entre 2 y 4 jugadores.
+- Cada jugador recibe una carta, que funcionará como su defensa (o escudo/shield).
 - Se genera un número aleatorio entre 18 y 26 para cada jugador, representando sus puntos de vida iniciales.
 - Si se está jugando con una baraja física, se sacan 2 cartas. Si la suma no alcanza 18, se descarta la carta más baja y se extrae otra, repitiendo hasta alcanzar al menos 18.
-- La partida dura alrededor de 5 minutos, dependiendo de la suerte y la estrategia de los jugadores
+- La partida dura alrededor de 5 minutos, dependiendo de la suerte y la estrategia de los jugadores.
 
+## Cómo jugar
 
-## Reglas
+- Es un juego por turnos, “todos contra todos”.
+- El objetivo es ser el último jugador que conserve puntos de vida.
 
-- El jugador con menos puntos de vida comienza la partida.
+### Inicio de partida
+
+- Comienza el jugador con menos puntos de vida.
   - En caso de empate:
     - Empieza el jugador con menor defensa.
     - Si persiste el empate, comienza el jugador de mayor edad.
+
+### Turno del jugador
 
 En su turno, cada jugador roba una carta sin verla y debe elegir una de las siguientes acciones:
 
@@ -34,13 +34,13 @@ En su turno, cada jugador roba una carta sin verla y debe elegir una de las sigu
 
 ### Resolución de acciones
 
-#### Cambiar defensa
+#### 1. Cambiar defensa
 
 - Se revela la carta robada.
 - La defensa anterior se descarta en el mazo de descartes.
 - La nueva carta se coloca como defensa.
 
-#### Atacar
+#### 2. Atacar
 
 - Se revela la carta robada.
 - Si el valor de la carta no supera la defensa del rival, el ataque falla y termina el turno.
@@ -49,7 +49,7 @@ En su turno, cada jugador roba una carta sin verla y debe elegir una de las sigu
   - Se descuenta el daño de los puntos de vida del jugador atacado.
   - El jugador atacado roba una nueva carta y la coloca como su nueva defensa.
 
-#### Guardar carta
+#### 3. Guardar carta
 
 - Se coloca la carta robada boca abajo, sin revelarla.
 - En el siguiente turno, el jugador debe robar otra carta y **atacar obligatoriamente**.
@@ -61,56 +61,61 @@ En su turno, cada jugador roba una carta sin verla y debe elegir una de las sigu
 - Si el mazo se agota, se barajan las cartas de la pila de descartes y se forma un nuevo mazo para continuar el juego.
 
 ---
-
 # 🎴 Game Rules: The Penguin (English)
 
-## How are the cards drawn and for how many players?
+## Setup
 
-- Each player draws a card, which will work as their defense (or shield).
+- The game uses a standard 52-card French deck (poker deck), but it can also be played with a Spanish deck.
 - 2 to 4 players can participate.
-- A random number between 18 and 26 is generated for each player to represent their initial health points.
+- Each player draws a card, which becomes their **defense card** (or shield).
+- Each player starts with a random number of health points between 18 and 26.
+- If using a physical deck, players draw two cards and sum their values. If the total is less than 18, the lower card is discarded and a new one is drawn until the minimum is reached.
+- A game lasts around 5 minutes, depending on luck and strategy.
 
-## What is the main objective?
+## How to Play
 
-- The last player standing wins the game.
+- This is a turn-based, free-for-all game.
+- The goal is to be the **last player with health points remaining**.
 
-## Rules
+### Starting the Game
 
-- The player with the lowest starting health points begins the match.
+- The player with the fewest health points goes first.
   - In case of a tie:
     - The player with the lower defense starts.
     - If still tied, the oldest player starts.
 
-On their turn, each player draws a card from the deck without looking at it and must choose one of the following actions:
+### Player Turn
 
-1. Switch their own shield or another player's shield.
+Each turn, a player draws a card face-down and must choose one of the following actions:
+
+1. Switch their own shield or another player’s shield.
 2. Attack another player.
 3. Keep the card for the next turn.
 
-### Resolution of actions
+### Action Resolution
 
-#### Switch defense
-
-- The drawn card is revealed.
-- The former shield is discarded into the discard pile.
-- The new card replaces the shield.
-
-#### Attack
+#### 1. Switch Shield
 
 - The drawn card is revealed.
-- If the attack card value is lower than the opponent's shield value, the attack fails and the turn ends.
-- If the attack card value is equal to or higher than the shield:
-  - **Damage taken** = Attack value - Defense value.
-  - The attacked player loses that amount of health points.
-  - The attacked player draws a new card to use as their new shield.
+- The previous shield is discarded to the discard pile.
+- The new card replaces the previous shield.
 
-#### Keep the card
+#### 2. Attack
 
-- The drawn card is placed face-down without revealing it.
-- On their next turn, the player must draw a second card and **perform a mandatory attack**.
-- Both cards are revealed, and their values are summed to determine the total attack value.
+- The drawn card is revealed.
+- If the attack card’s value is less than the opponent’s shield, the attack fails and the turn ends.
+- If the attack card’s value is equal to or greater than the shield:
+  - **Damage dealt** = Attack value - Defense value.
+  - The target player loses that amount of health.
+  - The attacked player draws a new card to become their new defense.
+
+#### 3. Keep the Card
+
+- The drawn card is placed face-down, unrevealed.
+- On the following turn, the player must draw a second card and **perform a mandatory attack**.
+- Both cards are revealed and their values are added to calculate the attack value.
 - The attack is resolved as a normal attack.
 
-### Additional considerations
+### Additional Considerations
 
-- If the deck runs out of cards, shuffle the discard pile to form a new deck and continue playing.
+- If the deck runs out, shuffle the discard pile to form a new deck and continue the game.
