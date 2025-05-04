@@ -45,10 +45,10 @@ const GameScreen: React.FC = () => {
     const initPlayers = async (deckId: string) => {
         if (winner != null) setWinner(null);
         const basePlayers = [
-            { id: '1', name: 'J1', age: 25 },
-            { id: '2', name: 'J2', age: 22 },
-            { id: '3', name: 'J3', age: 30 },
-            { id: '4', name: 'J4', age: 27 },
+            { id: '1', name: 'Julian', age: 28 },
+            { id: '2', name: 'Malu', age: 28 },
+            { id: '3', name: 'Ana', age: 24 },
+            { id: '4', name: 'Adrian', age: 31 },
         ];
 
         const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${basePlayers.length}`);
@@ -307,7 +307,7 @@ const GameScreen: React.FC = () => {
             Animated.parallel([
                 Animated.timing(fadeAnim, {
                     toValue: 1,
-                    duration: 300,
+                    duration: 1500,
                     useNativeDriver: true,
                     easing: Easing.out(Easing.ease),
                 }),
@@ -342,10 +342,10 @@ const GameScreen: React.FC = () => {
                 <Animated.View
                     style={[
                         styles.turnMessageContainer,
-                        {
+                        /* {
                             opacity: fadeAnim,
                             transform: [{ translateY: slideAnim }],
-                        },
+                        }, */
                     ]}
                 >
                     <Text style={styles.turnMessageText}>
@@ -354,19 +354,7 @@ const GameScreen: React.FC = () => {
                 </Animated.View>
             )}
 
-            {attackCard && (
-                <View style={{ alignItems: 'center', marginVertical: 10, flexDirection: 'row' }}>
-                    <Text style={{ fontWeight: 'bold', marginRight: 8 }}>Carta de ataque:</Text>
-                    {attackCard.map((card, index) => (
-                        <React.Fragment key={index}>
-                            <CardView value={card.value} suit={card.suit} />
-                            {index < attackCard.length - 1 && (
-                                <Text style={{ fontSize: 20, marginHorizontal: 4 }}>+</Text>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </View>
-            )}
+            
 
             <GameBoard
                 players={players}
@@ -400,6 +388,19 @@ const GameScreen: React.FC = () => {
                     </View>
                 </View>
             </Modal>
+            {attackCard && (
+                <View style={{ alignItems: 'center', marginVertical: 10, flexDirection: 'row' }}>
+                    <Text style={{ fontWeight: 'bold', marginRight: 8 }}>Carta de ataque:</Text>
+                    {attackCard.map((card, index) => (
+                        <React.Fragment key={index}>
+                            <CardView value={card.value} suit={card.suit} />
+                            {index < attackCard.length - 1 && (
+                                <Text style={{ fontSize: 20, marginHorizontal: 4 }}>+</Text>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </View>
+            )}
         </View>
     );
 };

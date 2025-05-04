@@ -18,7 +18,7 @@ export const drawCard = async (deckId: string, count = 1): Promise<any[]> => {
   if (notEnoughCards) {
     console.warn('⚠️ No hay suficientes cartas. Devolviendo y barajando...');
 
-    await fetch(`${BASE_URL}/${deckId}/return/`, { method: 'POST' });
+    //await fetch(`${BASE_URL}/${deckId}/return/`, { method: 'POST' });
     await fetch(`${BASE_URL}/${deckId}/shuffle/`);
 
     data = await tryDraw(); // intentar de nuevo

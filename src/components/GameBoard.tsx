@@ -29,7 +29,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   const blinkAnim = useRef(new Animated.Value(0)).current;
   const colorScheme = useColorScheme();
-  const boardBackgroundColor = colorScheme === 'dark' ? '#5f8a8a': '#dcf7f7';
+  const boardBackgroundColor = colorScheme === 'dark' ? '#dcf7f7' : '#5f8a8a';
   const textColor = colorScheme === 'dark' ? '#ffffff' : '#222222';
 
 
@@ -69,6 +69,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   const renderPlayer = (player: Player, position: Position) => {
+    const isRightSide = position === 'right';
+
     const isSelectable = !!selectingTargetForAction;
     const isEliminated = player.health <= 0;
     const Wrapper = isSelectable ? TouchableOpacity : View;
@@ -84,41 +86,53 @@ const GameBoard: React.FC<GameBoardProps> = ({
       >
         {!isEliminated && (
           <>
-            <Text style={[styles.name, { color: textColor }]}>{player.name}</Text>
-            <Text style={[styles.health, { color: textColor }]}>
-              ❤️ {player.health} 🛡️ {player.defense.value}
-            </Text>
+            <View>
+
+              <Text style={[styles.name, { color: textColor }]}>{player.name}</Text>
+              <Text style={[styles.health, { color: textColor }]}>
+                ❤️ {player.health} 🛡️ {player.defense.value}
+              </Text>
+            </View>
 
 
-            <Wrapper onPress={() => isSelectable && onSelectPlayerTarget(player.id)}>
-              {isSelectable ? (
-                <Animated.View
-                  style={{
-                    borderRadius: 6,
-                    overflow: 'hidden',
-                    backgroundColor: getBlinkBackground(),
-                  }}
-                >
-                  <CardView
-                    key={`${player.id}-${player.defense.code}`}
-                    value={player.defense.value}
-                    suit={player.defense.suit}
-                  />
-                </Animated.View>
-              ) : (
-                <CardView
-                  key={`${player.id}-${player.defense.code}`}
-                  value={player.defense.value}
-                  suit={player.defense.suit}
-                />
-              )}
-
+            <View
+              style={{
+                flexDirection: isRightSide ? 'row-reverse' : 'row',
+                alignItems: 'center',
+              }}
+            >
               {player.savedCard && (
                 <View style={styles.hiddenCard}>
                   <Text style={styles.hiddenCardSymbol}>🂠</Text>
                 </View>
               )}
-            </Wrapper>
+
+              <Wrapper onPress={() => isSelectable && onSelectPlayerTarget(player.id)}>
+                {isSelectable ? (
+                  <Animated.View
+                    style={{
+                      borderRadius: 6,
+                      overflow: 'hidden',
+                      backgroundColor: getBlinkBackground(),
+                    }}
+                  >
+                    <CardView
+                      key={`${player.id}-${player.defense.code}`}
+                      value={player.defense.value}
+                      suit={player.defense.suit}
+                    />
+                  </Animated.View>
+                ) : (
+                  <CardView
+                    key={`${player.id}-${player.defense.code}`}
+                    value={player.defense.value}
+                    suit={player.defense.suit}
+                  />
+                )}
+              </Wrapper>
+            </View>
+
+
           </>
         )}
       </View>
@@ -180,10 +194,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#795548',
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 10,
+    marginTop: 40,
+    
   },
   deck: {
     fontSize: 30,
     color: '#fff',
+    
   },
   right: {
     flex: 1,
