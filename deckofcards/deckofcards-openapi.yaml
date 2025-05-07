@@ -1,0 +1,223 @@
+openapi: 3.0.3
+info:
+  title: Deck of Cards API
+  version: 1.0.0
+  description: API for simulating decks of cards (based on your deckofcards views.py)
+servers:
+  - url: http://localhost:8000/api
+
+paths:
+  /deck/new/:
+    get:
+      summary: Create a new deck
+      parameters:
+        - in: query
+          name: deck_count
+          schema:
+            type: integer
+          description: Number of decks to create
+        - in: query
+          name: cards
+          schema:
+            type: string
+          description: Comma-separated list of cards to include
+        - in: query
+          name: jokers_enabled
+          schema:
+            type: boolean
+          description: Include jokers
+      responses:
+        '200':
+          description: Deck created
+
+  /deck/new/shuffle/:
+    get:
+      summary: Create and shuffle a new deck
+      responses:
+        '200':
+          description: Deck created and shuffled
+
+  /deck/{deck_id}/shuffle/:
+    get:
+      summary: Shuffle an existing deck
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: remaining
+          schema:
+            type: boolean
+          description: Shuffle only remaining cards
+      responses:
+        '200':
+          description: Deck shuffled
+
+  /deck/{deck_id}/draw/:
+    get:
+      summary: Draw cards from a deck
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: count
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cards drawn
+
+  /deck/new/draw/:
+    get:
+      summary: Create a new deck and draw immediately
+      responses:
+        '200':
+          description: Deck created and card(s) drawn
+
+  /deck/{deck_id}/:
+    get:
+      summary: Get deck information
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deck details
+
+  /deck/{deck_id}/return/:
+    post:
+      summary: Return cards to a deck
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: cards
+          schema:
+            type: string
+          description: Comma-separated card codes to return
+      responses:
+        '200':
+          description: Cards returned
+
+  /deck/{deck_id}/pile/{pile}/add/:
+    post:
+      summary: Add cards to a pile
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pile
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: cards
+          required: true
+          schema:
+            type: string
+          description: Comma-separated list of cards to add
+      responses:
+        '200':
+          description: Cards added to pile
+
+  /deck/{deck_id}/pile/{pile}/list/:
+    get:
+      summary: List cards in a pile
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pile
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of cards
+
+  /deck/{deck_id}/pile/{pile}/shuffle/:
+    get:
+      summary: Shuffle a pile
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pile
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pile shuffled
+
+  /deck/{deck_id}/pile/{pile}/draw/:
+    get:
+      summary: Draw cards from a pile
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pile
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: count
+          schema:
+            type: integer
+          description: Number of cards to draw
+      responses:
+        '200':
+          description: Cards drawn from pile
+
+  /deck/{deck_id}/pile/{pile}/draw/{location}/:
+    get:
+      summary: Draw cards from specific pile location
+      parameters:
+        - in: path
+          name: deck_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: pile
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: location
+          required: true
+          schema:
+            type: string
+          description: Location to draw from (top, bottom, random)
+        - in: query
+          name: count
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cards drawn from specific pile location

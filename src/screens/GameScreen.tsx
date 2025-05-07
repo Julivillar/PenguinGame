@@ -179,7 +179,6 @@ const GameScreen: React.FC = () => {
 
             if (selectingTargetForAction === 'ATTACK') {
                 const target = players.find(p => p.id === targetId);
-                /* const attacker = players.find(p => p.id === localPlayerId); */
                 const attacker = players.find(p => p.isTurn);
 
                 if (!target || !attacker) throw new Error('Jugador no encontrado');
@@ -210,6 +209,15 @@ const GameScreen: React.FC = () => {
                         'Ataque fallido',
                         `Tu ataque (${totalAttack}) no supera la defensa (${defenseValue}).`
                     );
+
+                    // ❗️Descartar la carta guardada igualmente
+                    const updatedPlayers = players.map(p =>
+                        p.isTurn
+                            ? { ...p, savedCard: undefined }
+                            : p
+                    );
+
+                    setPlayers(updatedPlayers);
                 } else {
                     const damage = totalAttack - defenseValue;
 
@@ -230,23 +238,18 @@ const GameScreen: React.FC = () => {
                                 },
                             };
                         }
-                        /* if (p.id === localPlayerId) {
-                            return {
-                                ...p,
-                                savedCard: undefined,
-                            };
-                        } */
+
                         if (p.isTurn) {
                             return {
                                 ...p,
                                 savedCard: undefined,
                             };
                         }
+
                         return p;
                     });
 
                     Alert.alert('¡Ataque exitoso!', `Ataque total: ${totalAttack}\nDaño infligido: ${damage}`);
-
                     setPlayers(updatedPlayers);
                 }
 
@@ -254,6 +257,7 @@ const GameScreen: React.FC = () => {
                     setAttackCard(null);
                 }, 3000);
             }
+
         } catch (error) {
             Alert.alert('Error', String(error));
         } finally {
@@ -354,7 +358,7 @@ const GameScreen: React.FC = () => {
                 </Animated.View>
             )}
 
-            
+
 
             <GameBoard
                 players={players}

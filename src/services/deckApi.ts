@@ -1,4 +1,5 @@
 const BASE_URL = 'https://deckofcardsapi.com/api/deck';
+//const BASE_URL = 'https://deck-api-service-717787752348.us-central1.run.app/api/deck';
 
 export const drawCard = async (deckId: string, count = 1): Promise<any[]> => {
 
