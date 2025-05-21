@@ -38,8 +38,6 @@ const formatCardValue = (value: string | number): string => {
 
 
 const CardView: React.FC<CardViewProps> = ({ value, suit, backgroundColor = '#fff' }) => {
-  //console.log('🃏 Render Card:', suit, value);
-
   return (
     <View style={[cardViewStyles.card, { backgroundColor }]}>
       <Text style={[cardViewStyles.text, { color: suitColors[suit] }]}>

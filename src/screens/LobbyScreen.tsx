@@ -72,7 +72,7 @@ const LobbyScreen: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut(getAuth()).then(() => console.log('User signed out!'));
-      // No need to navigate—your Auth listener will kick in and show LoginScreen
+
     } catch (e: any) {
       console.error('Error signing out:', e);
       Alert.alert('Error', 'Could not sign out. Please try again.');
@@ -92,53 +92,30 @@ const LobbyScreen: React.FC = () => {
       <Text style={lobbyScreenStyles.title}>Penguin Game</Text>
 
       <View style={lobbyScreenStyles.buttonsContainer}>
-        {/* <TouchableOpacity
-          style={lobbyScreenStyles.button}
-          onPress={handleNewGame}
-        >
-          <Text style={lobbyScreenStyles.buttonText}>New Game</Text>
-        </TouchableOpacity> */}
+
         <Button
-          title="New Game"
+          title="Nueva partida"
           onPress={handleNewGame}
           style={lobbyScreenStyles.button}
           textStyle={lobbyScreenStyles.buttonText}
         />
 
-        {/* <TouchableOpacity
-          style={lobbyScreenStyles.button}
-          onPress={handleRule}
-        >
-          <Text style={lobbyScreenStyles.buttonText}>Game Rules</Text>
-        </TouchableOpacity> */}
         <Button
-          title="Game Rules"
+          title="Reglas del juego"
           onPress={handleRule}
           style={lobbyScreenStyles.button}
           textStyle={lobbyScreenStyles.buttonText}
         />
 
-        {/* <TouchableOpacity
-          style={lobbyScreenStyles.button}
-          onPress={handleSetting}
-        >
-          <Text style={lobbyScreenStyles.buttonText}>Settings</Text>
-        </TouchableOpacity> */}
-
         <Button
-          title="Settings"
+          title="Ajustes"
           onPress={handleSetting}
           style={lobbyScreenStyles.button}
           textStyle={lobbyScreenStyles.buttonText}
         />
-        {/* <TouchableOpacity
-          style={lobbyScreenStyles.button}
-          onPress={handleSignOut}
-        >
-          <Text style={lobbyScreenStyles.buttonText}>Close session</Text>
-        </TouchableOpacity> */}
+
         <Button
-          title="Close session"
+          title="Cerrar sesión"
           onPress={handleSignOut}
           style={lobbyScreenStyles.button}
           textStyle={lobbyScreenStyles.buttonText}
@@ -151,7 +128,7 @@ const LobbyScreen: React.FC = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#7DA9C6" />
       ) : games.length === 0 ? (
-        <Text style={lobbyScreenStyles.emptyText}>No open games</Text>
+        <Text style={lobbyScreenStyles.emptyText}>No hay partidas disponibles</Text>
       ) : (
         <FlatList
           data={games}
@@ -171,15 +148,7 @@ const LobbyScreen: React.FC = () => {
 
   );
 };
-/* <TouchableOpacity
-              style={lobbyScreenStyles.gameItem}
-              onPress={() => handleJoin(item.id)}
-            >
-              <Text style={lobbyScreenStyles.gameText}>
-                {item.hostName}’s room ({item.id.slice(0, 6)})
 
-              </Text>
-            </TouchableOpacity> */
 export default LobbyScreen;
 
 const styles = StyleSheet.create({

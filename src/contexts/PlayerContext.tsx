@@ -5,8 +5,7 @@ import React, {
   useEffect,
   ReactNode
 } from 'react';
-/* 
-import { firebaseAuth, db } from '../firebase/firebase'; */
+
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import type { Unsubscribe } from '@react-native-firebase/firestore';
 import { getAuth } from '@react-native-firebase/auth';

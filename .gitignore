@@ -52,7 +52,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # firebase
-firebase/varios.txt
+/src/firebase/varios.txt
 
 # Build artifacts
 build/

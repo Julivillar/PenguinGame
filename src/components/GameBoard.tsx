@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import type { Player, TargetAction } from '../types/GameTypes';
 import CardView from './CardView';
-import { useColorScheme } from 'react-native';
 import { gameBoardStyles as styles } from '../styles/index'
 
 
@@ -18,7 +17,7 @@ import {
   doc,
   onSnapshot,
 } from '@react-native-firebase/firestore';
-import { BackButton } from './BackButton';
+
 import { usePlayer } from '../contexts/PlayerContext';
 
 type GameBoardProps = {
@@ -41,7 +40,6 @@ const GameBoard: React.FC<GameBoardProps & { currentPlayerId: string | null }> =
 }) => {
   const navigation = useNavigation();
   const blinkAnim = useRef(new Animated.Value(0)).current;
-  const colorScheme = useColorScheme();
   const boardBackgroundColor = '#5f8a8a';
   const textColor = '#ffffff';
 
@@ -95,6 +93,8 @@ const GameBoard: React.FC<GameBoardProps & { currentPlayerId: string | null }> =
   const getPositionStyle = (position: Position) => {
     return styles[position];
   };
+  /*
+  ToDo: implement a warning before leaving 
   const handleBackToLobby = () => {
     let status;
     const db = getFirestore();
@@ -123,7 +123,7 @@ const GameBoard: React.FC<GameBoardProps & { currentPlayerId: string | null }> =
       navigation.replace('Lobby');
     }
     return unsubscribe;
-  };
+  }; */
 
   const renderPlayer = (player: Player, position: Position) => {
     const isRightSide = position === 'right';
@@ -207,8 +207,6 @@ const GameBoard: React.FC<GameBoardProps & { currentPlayerId: string | null }> =
 
   return (
     <View style={[styles.board, { backgroundColor: boardBackgroundColor }]}>
-
-      {/* <BackButton textContent={'back to lobby'} /> */}
 
       {/* Top */}
       {players[0] && renderPlayer(players[0], 'top')}

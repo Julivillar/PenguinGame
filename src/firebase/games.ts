@@ -424,15 +424,14 @@ export async function attackPlayer(
           ...attacker,
           savedCard: null,
         };
-        //console.log("players");
-        //console.log(players);
+
         attackResultMsg = `${attackerName} atacó a ${targetIdName} y le ha hecho ${damage} de daño!`
 
         /* Alert.alert('¡Ataque exitoso!', `Ataque total: ${attackValue}\nDaño infligido: ${damage}`); */
       }
-      //console.log("updating players");
+      
       tx.update(gameRef, { players, lastAction: serverTimestamp(), lastActionMsg: attackResultMsg });
-      //console.log("after updating players");
+      
 
     });
   } catch (error) {

@@ -86,9 +86,6 @@ const CreateGameScreen: React.FC = () => {
         />
       </View>
 
-      {/* <TouchableOpacity style={createGameScreenStyles.startButton} onPress={handleStart}>
-        <Text style={createGameScreenStyles.startText}>Start</Text>
-      </TouchableOpacity> */}
       <Button
         title="Empezar"
         onPress={handleStart}

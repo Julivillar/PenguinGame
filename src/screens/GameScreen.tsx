@@ -81,10 +81,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
     }
   }, [players]);
 
-  /* useEffect(() => {
-    Alert.alert(lastActionMsg)
-  }, [lastActionMsg]) */
-
   // Handlers that call your Firebase logic
   const handleDeckPress = () => {
     if (status === 'waiting') return;
@@ -95,7 +91,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
 
   const handleChangeDefense = () => {
     setModalVisible(false);
-    //changeDefense(gameId, localPlayerId!);
     setSelectingTargetForAction('CHANGE_DEFENSE');
   };
 
@@ -107,20 +102,19 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
   const handleGuardCard = () => {
     setModalVisible(false);
     guardCard(gameId, localPlayerId!);
-    //advanceTurn(gameId);
+    setSelectingTargetForAction(null);
   };
 
   const handleSelectPlayerTarget = (targetId: string) => {
     setModalVisible(false);
-    if (selectingTargetForAction === 'CHANGE_DEFENSE') {
-      //changeDefense(gameId, localPlayerId!, targetId);
+    if (selectingTargetForAction === 'CHANGE_DEFENSE' && isMyTurn) {
       changeDefense(gameId, targetId!);
-    } else if (selectingTargetForAction === 'ATTACK') {
+    } else if (selectingTargetForAction === 'ATTACK' && isMyTurn) {
       attackPlayer(gameId, targetId);
       
     }
     setSelectingTargetForAction(null);
-    //advanceTurn(gameId);
+
   };
 
   const handleStart = async () => {
@@ -166,7 +160,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
   // Render
   return (
     <View style={{ flex: 1 }}>
-      {lastActionMsg != '' && (
+      {status=='waiting' && (
+        <View style={gameScreenStyles.victoryContainer}>
+          <Text style={gameScreenStyles.victoryText}>
+            Id de la sala: {gameId}
+          </Text>
+
+        </View>
+      )}
+      
+      {lastActionMsg != null && (
         <Animated.View
           style={[
             animStyles.turnMessageContainer,
@@ -211,11 +214,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
             🏆 {winner.name} ha ganado la partida
           </Text>
 
-
-          {/* <TouchableOpacity style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]} onPress={handleStart} disabled={status !== 'waiting' || players.length < 2}>
-            <Text style={gameScreenStyles.btnText}>Restart game</Text>
-          </TouchableOpacity> */}
-          {/* <Button title="Reiniciar partida" onPress={() => advanceTurn(gameId)} /> */}
         </View>
       )}
 
@@ -243,42 +241,36 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
                   style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]}
                   textStyle={gameScreenStyles.btnText}
                 />
-                {/* <TouchableOpacity style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]} onPress={handleChangeDefense}>
-                  <Text style={gameScreenStyles.btnText}>Cambiar defensa</Text>
-                </TouchableOpacity> */}
+
                 <Button
                   title={'Atacar'}
                   onPress={handleAttack}
                   style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]}
                   textStyle={gameScreenStyles.btnText}
                 />
-                {/* <TouchableOpacity style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]} onPress={handleAttack}>
-                  <Text style={gameScreenStyles.btnText}>Atacar</Text>
-                </TouchableOpacity> */}
+
                 <Button
                   title={'Guardar carta'}
                   onPress={handleGuardCard}
                   style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]}
                   textStyle={gameScreenStyles.btnText}
                 />
-                {/* <TouchableOpacity style={[gameScreenStyles.btn, gameScreenStyles.primaryBtn]} onPress={handleGuardCard}>
-                  <Text style={gameScreenStyles.btnText}>Guardar carta</Text>
-                </TouchableOpacity> */}
+
                 <Button
                   title={'Cancelar'}
                   onPress={closeModal}
                   style={[gameScreenStyles.btn, gameScreenStyles.cancelBtn]}
                   textStyle={[gameScreenStyles.btnText, { color: 'white' }]}
                 />
-                {/* <TouchableOpacity style={[gameScreenStyles.btn, gameScreenStyles.cancelBtn]} onPress={closeModal}>
-                  <Text style={[gameScreenStyles.btnText, { color: 'white' }]}>Cancelar</Text>
-                </TouchableOpacity> */}
+
               </View>
             )}
           </View>
         </View>
       </Modal>
 
+      {/* 
+      ToDo: Implement showing the card
       {attackCard && (
         <View style={gameScreenStyles.attackCardContainer}>
           <Text style={gameScreenStyles.attackCardLabel}>Carta de ataque:</Text>
@@ -289,7 +281,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ route }) => {
             </React.Fragment>
           ))}
         </View>
-      )}
+      )} */}
     </View>
   );
 };
