@@ -1,0 +1,71 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+android/
+ios/
+
+# IDE settings
+.idea/
+.vscode/
+
+# Credentials & secrets
+credentials/
+credentials.json
+google-services.json
+GoogleService-Info.plist
+.firebaserc
+
+# Deck-of-cards API folder (if contains keys or local data)
+deckofcards/
+
+# Cloud functions source (if you don’t want to commit these)
+functions/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# typescript
+*.tsbuildinfo
+
+# firebase
+firebase/varios.txt
+
+# Build artifacts
+build/
+*.keystore
+
+# Generated EAS & Expo files
+eas.json
+*.expo
+*.expo-shared/
+app.json
+
+# Misc
+.env
+.env.*
+# local env files
+.env*.local
